@@ -1,6 +1,9 @@
 Project: Color-Controlled Motor System
 This project uses an Arduino to read frequency data from a TCS3200 color sensor. Based on the detected color (Red or Green), the system toggles between a Running and Stopped state. It also incorporates an IR sensor for basic navigation or obstacle detection.
 
+<img width="654" height="670" alt="{6E22D8C9-CF66-440B-8D9A-FFAFB27D7851}" src="https://github.com/user-attachments/assets/151e0e0a-0567-4573-a791-4eb605a46eaf" />
+
+
 1. Hardware Configuration
 The following pins are defined in the firmware:
 
