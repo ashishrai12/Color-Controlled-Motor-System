@@ -1,6 +1,14 @@
 # Color-Controlled Motor System
 
-A professional, modular embedded C++ project for an Arduino-based motor control system driven by color detection and IR sensing.
+## 📖 About
+
+This system is a **behavior-driven autonomous platform** that translates environmental visual data into real-time mechanical action. It is designed to demonstrate reactive robotics logic in a modular C++ environment.
+
+### Core Outputs
+*   🔴 **Dynamic Gating:** Instantly halts all mechanical movement upon detecting a Red threshold, acting as an optical "kill switch."
+*   🟢 **Autonomous Activation:** Resumes operational state when Green is identified, allowing for hands-free workflow management.
+*   🛰 **Intelligent Obstacle Avoidance:** While in motion, the system utilizes IR sensing to execute pre-programmed maneuvers when land-based obstacles are detected.
+*   ⚡ **Low-Latency Feedback:** Leverages hardware interrupts for frequency-to-color mapping, ensuring sub-millisecond response times to color changes.
 
 ## System Architecture
 
