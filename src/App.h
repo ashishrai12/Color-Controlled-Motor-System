@@ -4,6 +4,7 @@
 #include "ColorSensor.h"
 #include "MotorController.h"
 #include "IrSensor.h"
+#include "Telemetry.h"
 
 class App {
  public:
@@ -23,7 +24,7 @@ class App {
   State current_state_;
 
   void HandleStateTransitions(const ColorSensor::RgbData& rgb);
-  void ExecuteStateActions();
+  void ExecuteStateActions(bool obstacle);
   void SetupPseudoPower();
 };
 

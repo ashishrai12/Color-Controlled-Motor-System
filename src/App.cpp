@@ -5,6 +5,7 @@ App::App() : current_state_(State::kStopped) {}
 
 void App::Initialize() {
   SetupPseudoPower();
+  Telemetry::Initialize();
   color_sensor_.Initialize();
   motor_controller_.Initialize();
   ir_sensor_.Initialize();
@@ -12,9 +13,12 @@ void App::Initialize() {
 
 void App::Update() {
   ColorSensor::RgbData rgb = color_sensor_.ReadRgb();
+  bool obstacle = ir_sensor_.IsObstacleDetected();
   
   HandleStateTransitions(rgb);
-  ExecuteStateActions();
+  ExecuteStateActions(obstacle);
+
+  Telemetry::Log(rgb, current_state_ == State::kRunning, obstacle);
 }
 
 void App::HandleStateTransitions(const ColorSensor::RgbData& rgb) {
@@ -33,9 +37,9 @@ void App::HandleStateTransitions(const ColorSensor::RgbData& rgb) {
   }
 }
 
-void App::ExecuteStateActions() {
+void App::ExecuteStateActions(bool obstacle) {
   if (current_state_ == State::kRunning) {
-    if (ir_sensor_.IsObstacleDetected()) {
+    if (obstacle) {
       motor_controller_.SetMovement(MotorController::Direction::kAlternativeAction);
       delay(config::timing::kIrActionDelayMs);
     } else {

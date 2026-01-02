@@ -34,6 +34,16 @@ inline void attachInterrupt(int interrupt, void (*userFunc)(), int mode) {
     arduino_mock::interrupts.push_back(userFunc); 
 }
 
+// Mock Serial
+class MockSerial {
+public:
+  void begin(long baud) {}
+  void print(const char* s) {}
+  void print(int i) {}
+  void println(int i) {}
+};
+extern MockSerial Serial;
+
 // Arduino Math
 #define max(a,b) ((a)>(b)?(a):(b))
 #define min(a,b) ((a)<(b)?(a):(b))

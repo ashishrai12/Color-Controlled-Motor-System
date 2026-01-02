@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot Telemetry Dashboard</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --primary: #06b6d4;
+            --accent: #f472b6;
+            --text: #f8fafc;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        header {
+            width: 100%;
+            padding: 2rem;
+            text-align: center;
+            background: linear-gradient(to right, #0891b2, #db2777);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            width: 90%;
+            max-width: 1200px;
+            padding: 2rem 0;
+        }
+        .card {
+            background-color: var(--card);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        .stat {
+            text-align: center;
+        }
+        .val {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        .label {
+            font-size: 0.875rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        #color-preview {
+            width: 100%;
+            height: 150px;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            background-color: #000;
+            transition: background-color 0.2s;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        button:active { transform: scale(0.95); }
+        .hidden { display: none; }
+        #status-indicator {
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            margin-top: 1rem;
+            display: inline-block;
+        }
+        .running { background-color: #065f46; color: #34d399; }
+        .stopped { background-color: #7f1d1d; color: #f87171; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Robot Telemetry Dashboard</h1>
+        <button id="connect-btn">Connect to Robot</button>
+    </header>
+
+    <div class="container">
+        <!-- Sensor Data -->
+        <div class="card">
+            <h2>Color Sensor</h2>
+            <div class="stat-grid">
+                <div class="stat"><div class="val" id="r-val">0</div><div class="label">Red</div></div>
+                <div class="stat"><div class="val" id="g-val">0</div><div class="label">Green</div></div>
+                <div class="stat"><div class="val" id="b-val">0</div><div class="label">Blue</div></div>
+            </div>
+            <div id="color-preview"></div>
+        </div>
+
+        <!-- System State -->
+        <div class="card">
+            <h2>System State</h2>
+            <div id="status-indicator" class="stopped">STOPPED</div>
+            <div class="stat-grid" style="margin-top: 2rem;">
+                <div class="stat"><div class="val" id="obs-val">NO</div><div class="label">Obstacle</div></div>
+                <div class="stat"><div class="val" id="fps-val">0</div><div class="label">Telemetry Hz</div></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let port;
+        let reader;
+        const connectBtn = document.getElementById('connect-btn');
+
+        connectBtn.addEventListener('click', async () => {
+            if ('serial' in navigator) {
+                try {
+                    port = await navigator.serial.requestPort();
+                    await port.open({ baudRate: 115200 });
+                    connectBtn.textContent = 'Connected';
+                    connectBtn.style.backgroundColor = '#059669';
+                    readLoop();
+                } catch (err) {
+                    console.error('Connection failed:', err);
+                }
+            } else {
+                alert('Web Serial API is not supported in this browser. Try Chrome or Edge.');
+            }
+        });
+
+        async function readLoop() {
+            const textDecoder = new TextDecoderStream();
+            const readableStreamClosed = port.readable.pipeTo(textDecoder.writable);
+            const reader = textDecoder.readable.getReader();
+
+            let buffer = '';
+            let lastUpdate = Date.now();
+            let frames = 0;
+
+            try {
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+                    
+                    buffer += value;
+                    let lines = buffer.split('\n');
+                    buffer = lines.pop(); // Keep partial line in buffer
+
+                    for (let line of lines) {
+                        updateDashboard(line);
+                        frames++;
+                        if (Date.now() - lastUpdate > 1000) {
+                            document.getElementById('fps-val').textContent = frames;
+                            frames = 0;
+                            lastUpdate = Date.now();
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error('Read error:', err);
+            } finally {
+                reader.releaseLock();
+            }
+        }
+
+        function updateDashboard(line) {
+            // Expected format: Red:10,Green:20,Blue:30,Running:100,Obstacle:0
+            const parts = line.split(',');
+            const data = {};
+            parts.forEach(p => {
+                const [k, v] = p.split(':');
+                data[k] = parseInt(v);
+            });
+
+            if (!isNaN(data.Red)) {
+                document.getElementById('r-val').textContent = data.Red;
+                document.getElementById('g-val').textContent = data.Green;
+                document.getElementById('b-val').textContent = data.Blue;
+                document.getElementById('color-preview').style.backgroundColor = `rgb(${data.Red}, ${data.Green}, ${data.Blue})`;
+            }
+
+            if (!isNaN(data.Running)) {
+                const indicator = document.getElementById('status-indicator');
+                if (data.Running > 0) {
+                    indicator.textContent = 'RUNNING';
+                    indicator.className = 'running';
+                } else {
+                    indicator.textContent = 'STOPPED';
+                    indicator.className = 'stopped';
+                }
+            }
+
+            if (!isNaN(data.Obstacle)) {
+                document.getElementById('obs-val').textContent = data.Obstacle > 0 ? 'YES' : 'NO';
+                document.getElementById('obs-val').style.color = data.Obstacle > 0 ? '#f472b6' : '#06b6d4';
+            }
+        }
+    </script>
+</body>
+</html>

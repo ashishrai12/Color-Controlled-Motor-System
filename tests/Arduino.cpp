@@ -13,3 +13,5 @@ void reset() {
     interrupts.clear();
 }
 }
+
+MockSerial Serial;
