@@ -1,6 +1,6 @@
 # Color-Controlled Motor System
 
-A professional, modular embedded C++ project for an Arduino-based motor control system driven by color detection and IR sensing.
+A modular embedded C++ project for an Arduino-based motor control system driven by color detection and IR sensing.
 
 ## System Architecture
 
