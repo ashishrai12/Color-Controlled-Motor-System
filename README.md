@@ -2,7 +2,7 @@
 
 A professional, modular embedded C++ project for an Arduino-based motor control system driven by color detection and IR sensing.
 
-## 🏗 System Architecture
+## System Architecture
 
 The project has been refactored from a monolithic sketch into a clean, component-based architecture following Staff Engineer standards.
 
@@ -41,7 +41,7 @@ While in the **RUNNING** state, the system performs real-time IR obstacle detect
 
 ---
 
-## 🛠 Hardware Configuration
+## Hardware Configuration
 
 | Component | Pin(s) | Function |
 |-----------|--------|----------|
@@ -55,7 +55,7 @@ While in the **RUNNING** state, the system performs real-time IR obstacle detect
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 - `ColorS.ino`: Lightweight entry point.
 - `include/Constants.h`: Centralized configuration for pins and thresholds.
@@ -66,7 +66,7 @@ While in the **RUNNING** state, the system performs real-time IR obstacle detect
 
 ---
 
-## 🚀 Build and Installation
+## Build and Installation
 
 ### Prerequisites
 - Arduino IDE 2.0+ or PlatformIO.
@@ -81,7 +81,7 @@ While in the **RUNNING** state, the system performs real-time IR obstacle detect
 
 ---
 
-## 🔧 Calibration and Configuration
+## Calibration and Configuration
 
 All "magic numbers" have been removed and replaced with named constants in `include/Constants.h`. To calibrate the system for your lighting conditions, modify the values in the `config::thresholds` namespace:
 
@@ -94,7 +94,7 @@ namespace thresholds {
 
 ---
 
-## 🧪 Unit Testing
+## Unit Testing
 
 The project includes a host-based unit testing suite that uses a mock Arduino API. This allows for validating the state machine and logic without physical hardware.
 
@@ -116,5 +116,5 @@ g++ -I tests -I include -I src tests/test_app.cpp tests/Arduino.cpp src/App.cpp 
 
 ---
 
-## 📜 Style Guide
+## Style Guide
 This project follows the **Google C++ Style Guide** adapted for embedded systems, ensuring high readability and maintainability.
