@@ -10,9 +10,9 @@ A modular embedded C++ project for an Arduino-based motor control system driven 
 
 The project uses a clean, component-based architecture with a state machine at its core.
 
-### Component Diagram
-
 ### System Flowchart
+
+The system follows a reactive state-machine logic, processing sensor inputs to determine motor speeds and maneuvers.
 
 ```mermaid
 flowchart TD
@@ -100,9 +100,24 @@ Color-Controlled-Motor-System/
 │   ├── test_sensor.cpp         # ColorSensor classification tests
 │   ├── test_motor.cpp          # MotorController PWM/direction tests
 │   └── test_ir.cpp             # IrSensor debounce & counter tests
+├── tools/
+│   ├── Simulation.html         # Interactive web-based robot simulator
+│   ├── LogicSim.py             # Python-based logic simulator
+│   ├── Visualizer.html         # Real-time Web Serial telemetry dashboard
+│   └── README.md               # Documentation for auxiliary tools
 └── .github/workflows/
     └── ci.yml                  # GitHub Actions CI pipeline
 ```
+
+---
+
+## Simulation and Visualization
+
+To support development and testing without physical hardware, the project includes several simulative tools found in the `tools/` directory:
+
+- **Interactive Simulation (`tools/Simulation.html`)**: A web-based canvas animation that visualizes the robot's state machine behavior and obstacle avoidance maneuvers. Use the on-screen buttons to inject sensor signals.
+- **Logic Simulator (`tools/LogicSim.py`)**: A Python CLI tool to dry-run the RGB color classification and decision logic.
+- **Telemetry Visualizer (`tools/Visualizer.html`)**: A real-time dashboard that connects to the live robot via Web Serial API.
 
 ---
 
