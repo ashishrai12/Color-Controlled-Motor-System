@@ -197,8 +197,6 @@ GitHub Actions runs automatically on every **push** and **pull request** to `mai
 | Job | Tool | What it checks |
 |-----|------|----------------|
 | **Host Unit Tests** | `g++` | Compile + run all 4 test suites |
-| **Static Analysis** | `cppcheck` | Code correctness, undefined behaviour |
-| **Code Style** | `clang-format` | Formatting consistency (Google style) |
 
 ---
 
