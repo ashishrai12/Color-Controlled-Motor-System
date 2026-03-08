@@ -1,0 +1,15 @@
+# Compiled test binaries
+tests/*.exe
+tests/run_test_*
+
+# Build artefacts
+*.o
+*.d
+build/
+
+# IDE / OS
+.vscode/
+*.suo
+*.user
+Thumbs.db
+.DS_Store
