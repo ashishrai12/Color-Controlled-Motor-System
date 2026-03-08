@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot Simulation Interface</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --primary: #0ea5e9;
+            --secondary: #8b5cf6;
+            --text: #f8fafc;
+            --robot: #60a5fa;
+            --stopped: #ef4444;
+            --running: #22c55e;
+            --caution: #eab308;
+        }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        header {
+            width: 100%;
+            padding: 1rem 0;
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+        .main-layout {
+            display: flex;
+            width: 100%;
+            height: calc(100vh - 70px);
+        }
+        .sidebar {
+            width: 300px;
+            background: var(--card);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            border-right: 1px solid rgba(255,255,255,0.1);
+        }
+        .canvas-area {
+            flex-grow: 1;
+            position: relative;
+            background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        canvas {
+            background-color: #0b1120;
+            box-shadow: 0 0 40px rgba(0,0,0,0.5);
+            border-radius: 0.5rem;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .card {
+            background: rgba(255,255,255,0.03);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #94a3b8;
+            margin-bottom: 0.5rem;
+        }
+        .status-pill {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-weight: bold;
+            font-size: 0.875rem;
+        }
+        .pill-stopped { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+        .pill-running { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+        .pill-caution { background: rgba(234, 179, 8, 0.2); color: #fbbf24; }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .btn-color {
+            height: 40px;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            color: white;
+            transition: all 0.2s;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        .btn-red { background: var(--stopped); }
+        .btn-green { background: var(--running); }
+        .btn-yellow { background: var(--caution); color: black; }
+        .btn-clear { background: #64748b; }
+        
+        button:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        button:active { transform: translateY(0); }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #334155;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px; width: 18px;
+            left: 3px; bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        .tooltip {
+            font-size: 0.75rem;
+            color: #64748b;
+            font-style: italic;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Robot Simulative Illustration</h1>
+    </header>
+
+    <div class="main-layout">
+        <div class="sidebar">
+            <div class="card">
+                <div class="label">System State</div>
+                <div id="state-display" class="status-pill pill-stopped">STOPPED</div>
+                <div style="margin-top: 0.5rem; font-size: 0.875rem;">
+                    Speed: <span id="speed-display">0</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="label">Color Sensor Emulation</div>
+                <div class="control-group">
+                    <button class="btn-color btn-red" onclick="setColor('red')">Simulate RED</button>
+                    <button class="btn-color btn-green" onclick="setColor('green')">Simulate GREEN</button>
+                    <button class="btn-color btn-yellow" onclick="setColor('yellow')">Simulate YELLOW</button>
+                    <button class="btn-color btn-clear" onclick="setColor('none')">Clear Color</button>
+                </div>
+                <div class="tooltip">Simulates the TCS3200 sensor reading.</div>
+            </div>
+
+            <div class="card">
+                <div class="label">IR Sensor Emulation</div>
+                <div class="toggle-container">
+                    <span>Obstacle in Path</span>
+                    <label class="switch">
+                        <input type="checkbox" id="obs-toggle" onchange="toggleObstacle()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="label">Statistics</div>
+                <div id="stats" style="font-size: 0.75rem; color: #94a3b8; line-height: 1.6;">
+                    X: <span id="stat-x">0</span><br>
+                    Y: <span id="stat-y">0</span><br>
+                    Heading: <span id="stat-h">0</span>°<br>
+                    Obstacles Evaded: <span id="stat-count">0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="canvas-area">
+            <canvas id="simCanvas" width="800" height="600"></canvas>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+        const stateDisplay = document.getElementById('state-display');
+        const speedDisplay = document.getElementById('speed-display');
+
+        // State variables
+        let robot = {
+            x: 400,
+            y: 300,
+            angle: -Math.PI / 2,
+            speed: 0,
+            radius: 20
+        };
+
+        let sysState = 'STOPPED'; // STOPPED, RUNNING, CAUTION
+        let currentColor = 'none';
+        let hasObstacle = false;
+        let obstacleCount = 0;
+        let lastTimestamp = 0;
+
+        // Path history for trails
+        let path = [];
+
+        function setColor(c) {
+            currentColor = c;
+            if (c === 'red') sysState = 'STOPPED';
+            else if (c === 'green') sysState = 'RUNNING';
+            else if (c === 'yellow') sysState = 'CAUTION';
+            
+            updateUI();
+        }
+
+        function toggleObstacle() {
+            hasObstacle = document.getElementById('obs-toggle').checked;
+        }
+
+        function updateUI() {
+            stateDisplay.textContent = sysState;
+            stateDisplay.className = 'status-pill pill-' + sysState.toLowerCase();
+        }
+
+        function drawRobot() {
+            ctx.save();
+            ctx.translate(robot.x, robot.y);
+            ctx.rotate(robot.angle);
+
+            // Shadow
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = 'rgba(0,0,0,0.5)';
+
+            // Body
+            ctx.fillStyle = '#334155';
+            ctx.beginPath();
+            ctx.arc(0, 0, robot.radius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // LED Status
+            let ledColor = '#ef4444';
+            if (sysState === 'RUNNING') ledColor = '#22c55e';
+            if (sysState === 'CAUTION') ledColor = '#eab308';
+            
+            ctx.fillStyle = ledColor;
+            ctx.beginPath();
+            ctx.arc(0, 0, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Wheels
+            ctx.fillStyle = '#000';
+            ctx.fillRect(-robot.radius-2, -10, 6, 20);
+            ctx.fillRect(robot.radius-4, -10, 6, 20);
+
+            // Direction arrow
+            ctx.strokeStyle = '#60a5fa';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, -25);
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        function drawObstacle() {
+            if (hasObstacle) {
+                const dist = 60;
+                const ox = robot.x + Math.cos(robot.angle - Math.PI/2) * dist;
+                const oy = robot.y + Math.sin(robot.angle - Math.PI/2) * dist;
+
+                ctx.fillStyle = 'rgba(244, 114, 182, 0.4)';
+                ctx.strokeStyle = '#f472b6';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(ox, oy, 15, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+                
+                ctx.fillStyle = '#f472b6';
+                ctx.font = 'bold 12px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText('OBSTACLE', ox, oy - 20);
+            }
+        }
+
+        function drawPath() {
+            if (path.length < 2) return;
+            ctx.strokeStyle = 'rgba(14, 165, 233, 0.3)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(path[0].x, path[0].y);
+            for (let i = 1; i < path.length; i++) {
+                ctx.lineTo(path[i].x, path[i].y);
+            }
+            ctx.stroke();
+        }
+
+        function updateRobot(dt) {
+            let targetSpeed = 0;
+            let currentAction = 'none';
+
+            if (sysState === 'RUNNING') {
+                if (hasObstacle) {
+                    currentAction = 'avoid';
+                    targetSpeed = 100;
+                    robot.angle += 0.05; // Turn clockwise during maneuver
+                } else {
+                    currentAction = 'forward';
+                    targetSpeed = 150;
+                }
+            } else if (sysState === 'CAUTION') {
+                if (hasObstacle) {
+                    currentAction = 'stop';
+                    targetSpeed = 0;
+                } else {
+                    currentAction = 'slow';
+                    targetSpeed = 70;
+                }
+            }
+
+            // Smooth speed transition
+            robot.speed += (targetSpeed - robot.speed) * 0.1;
+            speedDisplay.textContent = Math.round(robot.speed);
+
+            // Move
+            const vx = Math.cos(robot.angle - Math.PI/2) * robot.speed * dt;
+            const vy = Math.sin(robot.angle - Math.PI/2) * robot.speed * dt;
+            
+            robot.x += vx;
+            robot.y += vy;
+
+            // Stats update
+            document.getElementById('stat-x').textContent = Math.round(robot.x);
+            document.getElementById('stat-y').textContent = Math.round(robot.y);
+            document.getElementById('stat-h').textContent = Math.round(((robot.angle * 180 / Math.PI) + 90) % 360);
+            
+            // Boundary wrap
+            if (robot.x < 0) robot.x = canvas.width;
+            if (robot.x > canvas.width) robot.x = 0;
+            if (robot.y < 0) robot.y = canvas.height;
+            if (robot.y > canvas.height) robot.y = 0;
+
+            // Path trail
+            if (robot.speed > 5) {
+                path.push({x: robot.x, y: robot.y});
+                if (path.length > 500) path.shift();
+            }
+        }
+
+        function animate(timestamp) {
+            const dt = (timestamp - lastTimestamp) / 1000 || 0;
+            lastTimestamp = timestamp;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            drawPath();
+            drawObstacle();
+            drawRobot();
+            updateRobot(dt);
+
+            requestAnimationFrame(animate);
+        }
+
+        requestAnimationFrame(animate);
+    </script>
+</body>
+</html>

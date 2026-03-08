@@ -12,24 +12,39 @@ The project uses a clean, component-based architecture with a state machine at i
 
 ### Component Diagram
 
+### System Flowchart
+
 ```mermaid
-graph TD
-    Main[.ino Entry] --> App[App Class]
-    App --> CS[ColorSensor]
-    App --> MC[MotorController]
-    App --> IR[IrSensor]
-    App --> TM[Telemetry]
-
-    subgraph Components
-        CS
-        MC
-        IR
-        TM
-    end
-
-    subgraph Logic
-        App -- Coordinates --> SM[State Machine]
-    end
+flowchart TD
+    Start([Power On]) --> Init[Initialize Hardware]
+    Init --> Loop{Main Loop}
+    
+    Loop --> ReadSensors[Read Color & IR Sensors]
+    ReadSensors --> Classify[Classify Color: Red/Green/Yellow]
+    
+    Classify -- Red --> StopState[State: STOPPED]
+    Classify -- Green --> RunState[State: RUNNING]
+    Classify -- Yellow --> CautionState[State: CAUTION]
+    Classify -- Unknown --> RetainState[Retain Last State]
+    
+    StopState --> StopMotors[Stop Motors]
+    
+    RunState --> CheckIRObstacle{IR Obstacle?}
+    CheckIRObstacle -- No --> ForwardFull[Drive Forward Full Speed]
+    CheckIRObstacle -- Yes --> SideStep[Perform Side-Step Maneuver]
+    
+    CautionState --> CheckIRObstacleCaution{IR Obstacle?}
+    CheckIRObstacleCaution -- No --> ForwardSlow[Drive Forward Slow Speed]
+    CheckIRObstacleCaution -- Yes --> StopMotorsCaution[Stop Motors]
+    
+    StopMotors --> Telemetry[Update Telemetry]
+    ForwardFull --> Telemetry
+    SideStep --> Telemetry
+    ForwardSlow --> Telemetry
+    StopMotorsCaution --> Telemetry
+    RetainState --> Telemetry
+    
+    Telemetry --> Loop
 ```
 
 ### State Machine Logic

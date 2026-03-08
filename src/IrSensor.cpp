@@ -7,7 +7,7 @@ IrSensor::IrSensor()
 
 void IrSensor::Initialize() {
   pinMode(config::pins::kIrSensor, INPUT);
-  last_state_     = ReadRaw();
+  last_state_ = ReadRaw();
   last_change_ms_ = millis();
 }
 
@@ -18,7 +18,7 @@ bool IrSensor::IsObstacleDetected() {
   if (raw != last_state_) {
     unsigned long now = millis();
     if ((now - last_change_ms_) >= config::timing::kIrDebounceMs) {
-      last_state_     = raw;
+      last_state_ = raw;
       last_change_ms_ = now;
       if (raw) {
         ++trigger_count_;

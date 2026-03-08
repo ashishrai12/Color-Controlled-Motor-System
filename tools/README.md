@@ -1,45 +1,34 @@
-# Robot Telemetry Visualizer
+# Auxiliary Tools and Simulation
 
-This directory contains a web-based dashboard designed to provide real-time visualization of the Color-Controlled Motor System's internal telemetry.
+This directory contains standalone tools to support the development, testing, and monitoring of the Color-Controlled Motor System.
 
-## Overview
+## 1. Robot Simulation Illustration (`Simulation.html`)
+An interactive web-based simulator designed to visualize the robot's movement logic in real-time.
 
-The Visualizer is a lightweight, zero-install tool built with HTML, CSS, and Vanilla JavaScript. It leverages the **Web Serial API** to communicate directly with an Arduino over a USB connection, allowing users to monitor sensor data and system states without needing specialized serial plotting software or Python environments.
+- **How to use:** Open `Simulation.html` in any modern web browser.
+- **Features:** 
+    - Interactive buttons to inject "detected colors" (Red, Green, Yellow).
+    - Obstacle toggle to trigger IR sensor behavior.
+    - Canvas-based robot movement showing speed and heading changes.
+    - Automated trail path to visualize maneuvers.
 
-## Features
+## 2. Logic Simulator (`LogicSim.py`)
+A Python command-line tool that mirrors the C++ `App` state machine logic. Useful for verifying thresholds and actions without hardware or a browser.
 
-- **Real-time RGB Monitoring**: Displays raw values from the TCS3200 color sensor and provides a live background-color preview of what the robot "sees."
-- **State Visualization**: Clear indicators for the system's finite state machine (RUNNING vs. STOPPED).
-- **Obstacle Alerts**: Visual feedback when the IR sensor detects a path obstruction.
-- **Performance Tracking**: Built-in telemetry frequency counter (Hz) to monitor data throughput.
-- **Modern UI**: A responsive, high-contrast dark mode dashboard built for high visibility in various lighting conditions.
+- **Prerequisites:** Python 3.x
+- **How to use:**
+    ```bash
+    python LogicSim.py
+    ```
+- **Input Format:** `R G B Obstacle_Flag` (e.g., `210 190 40 0` for a Yellow clear path).
 
-## Prerequisites
+## 3. Telemetry Visualizer (`Visualizer.html`)
+A real-time dashboard that connects to the physical robot via the **Web Serial API**.
 
-To use this visualizer, you need:
-1. **A Supported Browser**: Google Chrome or Microsoft Edge (version 89+). 
-   - *Note: Firefox and Safari do not currently support the Web Serial API.*
-2. **Firmware**: Your Arduino must be flashed with the modular C++ code from this repository, which includes the `Telemetry` module.
-3. **Hardware**: The Arduino must be connected to your computer via USB.
-
-## How to Use
-
-1. **Flash the Robot**: Ensure your Arduino has the latest firmware and is connected to your USB port.
-2. **Open the Dashboard**: Open `tools/Visualizer.html` in a supported browser. You can do this by dragging the file into a browser tab.
-3. **Connect**:
-   - Click the **"Connect to Robot"** button at the top of the page.
-   - A browser popup will appear. Select the entry corresponding to your Arduino (e.g., "Arduino Uno" or "USB Serial Port").
-   - Click **Connect**.
-4. **Monitor**: Once connected, the data will begin streaming automatically. The "Telemetry Hz" counter should start incrementing, and the gauges will update in real-time.
-
-## Troubleshooting
-
-- **"Connect" button does nothing**: Ensure you are using Chrome or Edge. Check if another program (like the Arduino Serial Monitor) is already using the COM port.
-- **No data appearing**: Check your physical connections and ensure the baud rate in the code (`Telemetry.h`) matches the dashboard (default is **115200**).
-- **Inaccurate Colors**: Lighting conditions significantly affect the TCS3200 sensor. You may need to calibrate the thresholds in `include/Constants.h`.
-
-## Technical Details
-
-The visualizer expects comma-separated key-value pairs over serial at 115200 baud, ending with a newline.
-Example payload:
-`Red:120,Green:45,Blue:30,Running:100,Obstacle:0\n`
+- **Prerequisites:** A browser that supports Web Serial (Chrome, Edge, Opera).
+- **How to use:** Connect the Arduino via USB, open `Visualizer.html`, click **Connect**, and select the appropriate COM port.
+- **Features:**
+    - Live RGB value display.
+    - Color swatch preview.
+    - Status indicators for Running/Stopped and Obstacles.
+    - Telemetry throughput (Hz) monitor.

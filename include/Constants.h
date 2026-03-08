@@ -10,11 +10,11 @@ namespace config {
 // ---------------------------------------------------------------------------
 namespace pins {
 // TCS3200 Color Sensor
-constexpr int kSensorS0  = 4;
-constexpr int kSensorS1  = 5;
-constexpr int kSensorS2  = 6;
-constexpr int kSensorS3  = 7;
-constexpr int kSensorOut = 2;   // Hardware interrupt pin
+constexpr int kSensorS0 = 4;
+constexpr int kSensorS1 = 5;
+constexpr int kSensorS2 = 6;
+constexpr int kSensorS3 = 7;
+constexpr int kSensorOut = 2;  // Hardware interrupt pin
 
 // IR Proximity Sensor
 constexpr int kIrSensor  = 8;
@@ -43,38 +43,38 @@ constexpr int kVcc3 = 19;
 // ---------------------------------------------------------------------------
 namespace thresholds {
 // --- Red band ---
-constexpr int kRedGreenMin  = 100;
-constexpr int kRedGreenMax  = 150;
-constexpr int kRedBlueMin   =  80;
-constexpr int kRedBlueMax   = 100;
+constexpr int kRedGreenMin = 100;
+constexpr int kRedGreenMax = 150;
+constexpr int kRedBlueMin = 80;
+constexpr int kRedBlueMax = 100;
 
 // --- Green band ---
 constexpr int kGreenGreenThreshold = 150;
-constexpr int kGreenBlueThreshold  = 105;
+constexpr int kGreenBlueThreshold = 105;
 
 // --- Yellow band (green+red dominant, low blue) ---
-constexpr int kYellowRedMin   = 180;
+constexpr int kYellowRedMin = 180;
 constexpr int kYellowGreenMin = 160;
-constexpr int kYellowBlueMax  =  80;
+constexpr int kYellowBlueMax = 80;
 }  // namespace thresholds
 
 // ---------------------------------------------------------------------------
 // Motor Speed  (PWM duty cycle, 0-255)
 // ---------------------------------------------------------------------------
 namespace speed {
-constexpr uint8_t kFull    = 255;
-constexpr uint8_t kSlow    = 140;   // used during Yellow / caution state
-constexpr uint8_t kStopped =   0;
+constexpr uint8_t kFull = 255;
+constexpr uint8_t kSlow = 140;  // used during Yellow / caution state
+constexpr uint8_t kStopped = 0;
 }  // namespace speed
 
 // ---------------------------------------------------------------------------
 // Timing
 // ---------------------------------------------------------------------------
 namespace timing {
-constexpr unsigned long kSensorReadDelayMs  =  2;
-constexpr unsigned long kIrActionDelayMs    = 10;
-constexpr unsigned long kIrDebounceMs       =  5;   // debounce window for IR
-constexpr long          kSerialBaudRate     = 115200;
+constexpr unsigned long kSensorReadDelayMs = 2;
+constexpr unsigned long kIrActionDelayMs = 10;
+constexpr unsigned long kIrDebounceMs = 5;  // debounce window for IR
+constexpr long kSerialBaudRate = 115200;
 }  // namespace timing
 
 }  // namespace config

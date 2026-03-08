@@ -30,10 +30,10 @@ class App {
   State GetState() const { return current_state_; }
 
  private:
-  ColorSensor      color_sensor_;
-  MotorController  motor_controller_;
-  IrSensor         ir_sensor_;
-  State            current_state_;
+  ColorSensor color_sensor_;
+  MotorController motor_controller_;
+  IrSensor ir_sensor_;
+  State current_state_;
 
   void HandleStateTransitions(ColorSensor::DetectedColor color);
   void ExecuteStateActions(bool obstacle);

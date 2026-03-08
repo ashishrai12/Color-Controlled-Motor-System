@@ -37,9 +37,9 @@ ColorSensor::RgbData ColorSensor::ReadRgb() {
   // Normalize each channel relative to the dominant channel (0-255 range).
   int max_val = max(data.red, max(data.blue, data.green));
   if (max_val > 0) {
-    data.red   = map(data.red,   0, max_val, 0, 255);
+    data.red = map(data.red, 0, max_val, 0, 255);
     data.green = map(data.green, 0, max_val, 0, 255);
-    data.blue  = map(data.blue,  0, max_val, 0, 255);
+    data.blue = map(data.blue, 0, max_val, 0, 255);
   }
 
   return data;
@@ -50,9 +50,8 @@ ColorSensor::DetectedColor ColorSensor::ClassifyColor(const RgbData& rgb) {
   using namespace config::thresholds;
 
   // Yellow: high red + high green, low blue
-  if (rgb.red   >= kYellowRedMin   &&
-      rgb.green >= kYellowGreenMin &&
-      rgb.blue  <= kYellowBlueMax) {
+  if (rgb.red >= kYellowRedMin && rgb.green >= kYellowGreenMin &&
+      rgb.blue <= kYellowBlueMax) {
     return DetectedColor::kYellow;
   }
 

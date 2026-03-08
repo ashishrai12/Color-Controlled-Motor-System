@@ -22,7 +22,7 @@ class IrSensor {
   void ResetTriggerCount();
 
  private:
-  bool         last_state_;
+  bool last_state_;
   unsigned long last_change_ms_;
   unsigned long trigger_count_;
 
