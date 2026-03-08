@@ -10,6 +10,26 @@ A modular embedded C++ project for an Arduino-based motor control system driven 
 
 The project uses a clean, component-based architecture with a state machine at its core.
 
+### Component Architecture
+
+The system is designed using a clean, layered architecture where the `App` class orchestrates several hardware-specific drivers:
+
+```mermaid
+graph LR
+    Main[.ino Entry] --> App[App Class]
+    App --> CS[ColorSensor Driver]
+    App --> MC[MotorController PWM]
+    App --> IR[IrSensor Debounced]
+    App --> TM[Telemetry JSON/CSV]
+    
+    subgraph Drivers
+        CS
+        MC
+        IR
+        TM
+    end
+```
+
 ### System Flowchart
 
 The system follows a reactive state-machine logic, processing sensor inputs to determine motor speeds and maneuvers.
